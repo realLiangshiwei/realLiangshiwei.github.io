@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><title>MVC5-10 ModleBinder那点事 | liangsw</title><meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="author" content="[object Object]"><meta name="designer" content="liangsw"><meta name="keywords" content="netcore, net, 梁士伟, liangshiwei, 程序员, 后端开发, 全栈开发"><meta name="description" content="我叫梁士伟,专注.Net最佳实践。实践毋庸置疑,我们生来就具有基因所赋予的做出各种行为的潜能,但这些潜能变成实际能力的方式取决于我们所受的训练,取决于学习"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="format-detection" content="telephone=yes"><meta name="mobile-web-app-capable" content="yes"><meta name="robots" content="all"><link rel="canonical" href="https://liangsw.me/2016/11/07/MVC5-10 ModleBinder那点事/index.html"><link rel="icon" type="image/png" href="/img/favicon.ico" sizes="32x32"><link rel="stylesheet" href="/scss/base/index.css"><link rel="alternate" href="/atom.xml" title="liangsw"><script>var _hmt=_hmt||[];!function(){var e=document.createElement("script");e.src="https://hm.baidu.com/hm.js?5eba754c0c03b69141924e36e27a68c9";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)}()</script><script async src="https://www.googletagmanager.com/gtag/js?id=UA-124492593-1"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-124492593-1")</script><link rel="stylesheet" href="/scss/views/page/post.css"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"><link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head><body ontouchstart><div id="page-loading" class="page page-loading" style="background-image:url(https://img2018.cnblogs.com/blog/832799/201901/832799-20190116134700976-47612090.gif)"></div><div id="page" class="page js-hidden"><header class="page__small-header page__header--small"><nav class="page__navbar"><div class="page__container navbar-container"><nav class="page__nav"><ul class="nav__list clearfix"><li class="nav__item"><a href="/" alt="首页" title="首页">首页</a></li><li class="nav__item"><a href="/archives" alt="归档" title="归档">归档</a></li><li class="nav__item"><a href="/about" alt="关于" title="关于">关于</a></li></ul></nav><button class="page__menu-btn" type="button"><i class="iconfont icon-menu"></i></button></div></nav></header><main class="page__container page__main"><div class="page__content"><article class="page__post"><div class="post__cover"><img src="https://img2018.cnblogs.com/blog/832799/201901/832799-20190116134447983-2062242728.jpg" referrerpolicy="no-referrer" alt="MVC5-10 ModleBinder那点事"></div><header class="post__info"><h1 class="post__title">MVC5-10 ModleBinder那点事</h1><div class="post__mark"><div class="mark__block"><i class="mark__icon iconfont icon-write"></i><ul class="mark__list clearfix"><li class="mark__item"><a href="/">梁士伟</a></li></ul></div><div class="mark__block"><i class="mark__icon iconfont icon-time"></i><ul class="mark__list clearfix"><li class="mark__item"><span>2016-11-07</span></li></ul></div><div class="mark__block"><i class="mark__icon iconfont icon-tab"></i><ul class="mark__list clearfix"></ul></div><div class="mark__block"><i class="mark__icon iconfont icon-eye"></i><ul class="mark__list clearfix"><li id="busuanzi_container_page_pv" class="mark__item"><span id="busuanzi_value_page_pv"></span>次</li></ul></div></div></header><div class="post__content"><h1 id="模型绑定器"><a href="#模型绑定器" class="headerlink" title="模型绑定器"></a>模型绑定器</h1><p>之前或多或少也提到过模型绑定器，方法的形参就是由模型绑定器把参数绑定上去的，今天就说说ModuleBingder那点事</p><p>在MVC中有一个接口叫IModuleBinder<br><span style="color:green">//</span></p><pre><code>&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt; 摘要:
+
+&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;     Defines the method that is required for a model binder.&lt;/span&gt;
+
+&lt;span style=&quot;color: #0000ff&quot;&gt;public&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;interface&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; IModelBinder
+
+{
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;
+
+    &lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt; 摘要:
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;     Binds the model to a value by using the specified execution context and binding
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;     context.
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;
+
+    &lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt; 参数:
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;   modelBindingExecutionContext:
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;     The execution context.
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;
+
+    &lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;   bindingContext:
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;     The binding context.
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;
+
+    &lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt; 返回结果:
+
+    &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;     true if model binding is successful; otherwise, false.&lt;/span&gt;
+
+    &lt;span style=&quot;color: #0000ff&quot;&gt;bool&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; BindModel(ModelBindingExecutionContext modelBindingExecutionContext, ModelBindingContext bindingContext);
+
+}&lt;/span&gt;
+</code></pre><p>当然，这是接口，是没有实现的，MVC给我们提供了相应的实现类。DefaultModelBinder，所有的形参都是通过它去处理的。</p><p><img src="https://images2015.cnblogs.com/blog/832799/201611/832799-20161107231351233-714863377.png" referrerpolicy="no-referrer"></p><p>下面是源码,这里可以看到有两个重要的方法 BindSimpleModel、BindComplexModel 简单类型绑定与复杂类型的绑定,实际上方法是递归调用的，如果参数是对象的话，那就会创建一个对象，然后在绑定每一个属性，而绑定每一个属性的方法里又调用了BindModel方法。<br><span style="color:#00f">public</span> <span style="color:#00f">virtual</span> <span style="color:#00f">object</span><span style="color:#000"> BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)</span></p><pre><code>    {
+
+        RuntimeHelpers.EnsureSufficientExecutionStack();
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;if&lt;/span&gt; (bindingContext == &lt;span style=&quot;color: #0000ff&quot;&gt;null&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;)
+
+        {
+
+            &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;throw&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;new&lt;/span&gt; ArgumentNullException(&lt;span style=&quot;color: #800000&quot;&gt;&quot;&lt;/span&gt;&lt;span style=&quot;color: #800000&quot;&gt;bindingContext&lt;/span&gt;&lt;span style=&quot;color: #800000&quot;&gt;&quot;&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;);
+
+        }
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;bool&lt;/span&gt; flag = &lt;span style=&quot;color: #0000ff&quot;&gt;false&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;;
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;if&lt;/span&gt; (!&lt;span style=&quot;color: #0000ff&quot;&gt;string&lt;/span&gt;.IsNullOrEmpty(bindingContext.ModelName) &amp;&amp; !&lt;span style=&quot;color: #000000&quot;&gt;bindingContext.ValueProvider.ContainsPrefix(bindingContext.ModelName))
+
+        {
+
+            &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;if&lt;/span&gt; (!&lt;span style=&quot;color: #000000&quot;&gt;bindingContext.FallbackToEmptyPrefix)
+
+            {
+
+                &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;return&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;null&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;;
+
+            }
+
+            ModelBindingContext context &lt;/span&gt;= &lt;span style=&quot;color: #0000ff&quot;&gt;new&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; ModelBindingContext {
+
+                ModelMetadata &lt;/span&gt;=&lt;span style=&quot;color: #000000&quot;&gt; bindingContext.ModelMetadata,
+
+                ModelState &lt;/span&gt;=&lt;span style=&quot;color: #000000&quot;&gt; bindingContext.ModelState,
+
+                PropertyFilter &lt;/span&gt;=&lt;span style=&quot;color: #000000&quot;&gt; bindingContext.PropertyFilter,
+
+                ValueProvider &lt;/span&gt;=&lt;span style=&quot;color: #000000&quot;&gt; bindingContext.ValueProvider
+
+            };
+
+            bindingContext &lt;/span&gt;=&lt;span style=&quot;color: #000000&quot;&gt; context;
+
+            flag &lt;/span&gt;= &lt;span style=&quot;color: #0000ff&quot;&gt;true&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;;
+
+        }
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;if&lt;/span&gt; (!&lt;span style=&quot;color: #000000&quot;&gt;flag)
+
+        {
+
+            &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;bool&lt;/span&gt; flag2 =&lt;span style=&quot;color: #000000&quot;&gt; ShouldPerformRequestValidation(controllerContext, bindingContext);
+
+            ValueProviderResult valueProviderResult &lt;/span&gt;= bindingContext.UnvalidatedValueProvider.GetValue(bindingContext.ModelName, !&lt;span style=&quot;color: #000000&quot;&gt;flag2);
+
+            &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;if&lt;/span&gt; (valueProviderResult != &lt;span style=&quot;color: #0000ff&quot;&gt;null&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;)
+
+            {
+
+                &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;return&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;this&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;.BindSimpleModel(controllerContext, bindingContext, valueProviderResult);
+
+            }
+
+        }
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;if&lt;/span&gt; (!&lt;span style=&quot;color: #000000&quot;&gt;bindingContext.ModelMetadata.IsComplexType)
+
+        {
+
+            &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;return&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;null&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;;
+
+        }
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;return&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;this&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;.BindComplexModel(controllerContext, bindingContext);
+
+    }&lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;protected&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;virtual&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;object&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; GetPropertyValue(ControllerContext controllerContext, ModelBindingContext bindingContext, PropertyDescriptor propertyDescriptor, IModelBinder propertyBinder)
+
+    {
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;object&lt;/span&gt; objA =&lt;span style=&quot;color: #000000&quot;&gt; propertyBinder.BindModel(controllerContext, bindingContext);
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;if&lt;/span&gt; (bindingContext.ModelMetadata.ConvertEmptyStringToNull &amp;&amp; &lt;span style=&quot;color: #0000ff&quot;&gt;object&lt;/span&gt;.Equals(objA, &lt;span style=&quot;color: #0000ff&quot;&gt;string&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;.Empty))
+
+        {
+
+            &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;return&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;null&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt;;
+
+        }
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;return&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; objA;
+
+    }&lt;/span&gt;
+</code></pre><p>MVC是高度可替换的，如果DefaultModelBinder无法很好的实现我们的需求，那么可以写自己的ModelBinder。首先定义一个类去继承自IModelBinder实现BindModel方法，然后在Global里替换我们的MyModelBinder<br><span style="color:#00f">public</span> <span style="color:#00f">class</span><span style="color:#000"> Global : System.Web.HttpApplication</span></p><pre><code>{
+
+    &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;protected&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;void&lt;/span&gt; Application_Start(&lt;span style=&quot;color: #0000ff&quot;&gt;object&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; sender, EventArgs e)
+
+    {
+
+        &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;替换&lt;/span&gt;
+
+        ModelBinders.Binders.DefaultBinder = &lt;span style=&quot;color: #0000ff&quot;&gt;new&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; MyModelBinder();
+
+    }
+
+
+
+    &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;public&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;class&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; MyModelBinder : IModelBinder
+
+    {
+
+        &lt;/span&gt;&lt;span style=&quot;color: #0000ff&quot;&gt;public&lt;/span&gt; &lt;span style=&quot;color: #0000ff&quot;&gt;object&lt;/span&gt;&lt;span style=&quot;color: #000000&quot;&gt; BindModel(ModelBindingExecutionContext modelBindingExecutionContext, ModelBindingContext bindingContext)
+
+        {
+
+            &lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;//&lt;/span&gt;&lt;span style=&quot;color: #008000&quot;&gt;Todo...   &lt;/span&gt;
+</code></pre><p><span style="color:#000">}</span></p><pre><code>    }
+
+}&lt;/span&gt;
+</code></pre><div class="post-announce">感谢您的阅读，本文由 <a href="https://liangsw.me">liangsw</a> 版权所有。如若转载，请注明出处：liangsw（<a href="https://liangsw.me/2016/11/07/MVC5-10 ModleBinder那点事/">https://liangsw.me/2016/11/07/MVC5-10 ModleBinder那点事/</a>）</div><div class="post__prevs"><div class="post__prev"><a href="/2016/11/03/ExceptionLess新玩法 -- 审计日志/" title="ExceptionLess新玩法 -- 审计日志"><i class="iconfont icon-prev"></i>ExceptionLess新玩法 -- 审计日志</a></div><div class="post__prev post__prev--right"><a href="/2016/11/08/让AutoMapper更好用/" title="让AutoMapper更好用">让AutoMapper更好用<i class="iconfont icon-next"></i></a></div></div></div></article><div id="disqus_thread"></div></div><aside class="page__sidebar"><form id="page-search-from" class="page__search-from" action="/search/"><label class="search-form__item"><input class="input" type="text" name="search" placeholder="Search..."> <i class="iconfont icon-search"></i></label></form><div class="sidebar__block"><h3 class="block__title">简介</h3><p class="block__text">我叫梁士伟,专注.Net最佳实践。实践毋庸置疑,我们生来就具有基因所赋予的做出各种行为的潜能,但这些潜能变成实际能力的方式取决于我们所受的训练,取决于学习</p></div><div class="sidebar__block"><h3 class="block__title">文章分类</h3><ul class="block-list"><li class="block-list-item"><a class="block-list-link" href="/categories/SharpPlugs/">SharpPlugs</a><span class="block-list-count">1</span></li><li class="block-list-item"><a class="block-list-link" href="/categories/MVC5实战/">MVC5实战</a><span class="block-list-count">13</span></li><li class="block-list-item"><a class="block-list-link" href="/categories/Exceptionless/">Exceptionless</a><span class="block-list-count">3</span></li><li class="block-list-item"><a class="block-list-link" href="/categories/Entity-Framework/">Entity Framework</a><span class="block-list-count">4</span></li><li class="block-list-item"><a class="block-list-link" href="/categories/Docker/">Docker</a><span class="block-list-count">1</span></li><li class="block-list-item"><a class="block-list-link" href="/categories/C-基础深入/">C#基础深入</a><span class="block-list-count">10</span></li></ul></div><div class="sidebar__block"><h3 class="block__title">最新文章</h3><ul class="block-list latest-post-list"><li class="latest-post-item"><a href="/2019/05/07/Loadingrelateddata/" title="加载相关数据"><div class="item__cover"><img src="https://img2018.cnblogs.com/blog/832799/201901/832799-20190125092509730-966061697.png" alt="加载相关数据"></div><div class="item__info"><h3 class="item__title">加载相关数据</h3><span class="item__text">2019-05-07</span></div></a></li><li class="latest-post-item"><a href="/2019/04/26/Understandingdatabasequeries/" title="理解EF Core数据库查询"><div class="item__cover"><img src="https://img2018.cnblogs.com/blog/832799/201901/832799-20190125092509730-966061697.png" alt="理解EF Core数据库查询"></div><div class="item__info"><h3 class="item__title">理解EF Core数据库查询</h3><span class="item__text">2019-04-26</span></div></a></li><li class="latest-post-item"><a href="/2019/04/25/Creatingtheapplication’sDbContext/" title="创建应用程序的DbContext"><div class="item__cover"><img src="https://img2018.cnblogs.com/blog/832799/201901/832799-20190125092509730-966061697.png" alt="创建应用程序的DbContext"></div><div class="item__info"><h3 class="item__title">创建应用程序的DbContext</h3><span class="item__text">2019-04-25</span></div></a></li><li class="latest-post-item"><a href="/2019/04/24/Settingthesceneourbook-sellingsite/" title="设置一个图书销售网站的场景"><div class="item__cover"><img src="https://img2018.cnblogs.com/blog/832799/201901/832799-20190125092509730-966061697.png" alt="设置一个图书销售网站的场景"></div><div class="item__info"><h3 class="item__title">设置一个图书销售网站的场景</h3><span class="item__text">2019-04-24</span></div></a></li></ul></div><div class="sidebar__block"><h3 class="block__title">文章标签</h3><ul class="block-list tag-list clearfix"><li class="tag-item"><a class="tag-link" href="/tags/ABP/">ABP</a></li><li class="tag-item"><a class="tag-link" href="/tags/AngularJS2/">AngularJS2</a></li><li class="tag-item"><a class="tag-link" href="/tags/AspNetCore/">AspNetCore</a></li><li class="tag-item"><a class="tag-link" href="/tags/C-基础深入/">C#基础深入</a></li><li class="tag-item"><a class="tag-link" href="/tags/CodeFirst/">CodeFirst</a></li><li class="tag-item"><a class="tag-link" href="/tags/Entity-Framework/">Entity Framework</a></li><li class="tag-item"><a class="tag-link" href="/tags/Entity-Framework-Core/">Entity Framework Core</a></li><li class="tag-item"><a class="tag-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-item"><a class="tag-link" href="/tags/ExceptionLess/">ExceptionLess</a></li><li class="tag-item"><a class="tag-link" href="/tags/MVC/">MVC</a></li><li class="tag-item"><a class="tag-link" href="/tags/Newtonsoft-Json/">Newtonsoft.Json</a></li><li class="tag-item"><a class="tag-link" href="/tags/RabbitMQ/">RabbitMQ</a></li><li class="tag-item"><a class="tag-link" href="/tags/SignalR/">SignalR</a></li><li class="tag-item"><a class="tag-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-item"><a class="tag-link" href="/tags/aspnetcore/">aspnetcore</a></li><li class="tag-item"><a class="tag-link" href="/tags/docker/">docker</a></li><li class="tag-item"><a class="tag-link" href="/tags/eShopOnContainers/">eShopOnContainers</a></li><li class="tag-item"><a class="tag-link" href="/tags/geetest/">geetest</a></li><li class="tag-item"><a class="tag-link" href="/tags/logdashboard/">logdashboard</a></li><li class="tag-item"><a class="tag-link" href="/tags/wsl/">wsl</a></li><li class="tag-item"><a class="tag-link" href="/tags/小程序/">小程序</a></li><li class="tag-item"><a class="tag-link" href="/tags/异常日志/">异常日志</a></li><li class="tag-item"><a class="tag-link" href="/tags/异步编程/">异步编程</a></li><li class="tag-item"><a class="tag-link" href="/tags/极验/">极验</a></li><li class="tag-item"><a class="tag-link" href="/tags/翻译/">翻译</a></li><li class="tag-item"><a class="tag-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-item"><a class="tag-link" href="/tags/项目经验/">项目经验</a></li></ul></div></aside></main><footer class="page__footer"><section class="footer__top"><div class="page__container footer__container"><div class="footer-top__item footer-top__item--2"><h3 class="item__title">关于</h3><div class="item__content"><p class="item__text">梁士伟</p><ul class="footer__contact-info"><li class="contact-info__item"><i class="iconfont icon-address"></i> <span>BeiJing, China</span></li><li class="contact-info__item"><i class="iconfont icon-email2"></i> <span>liangshiw@outlook.com</span></li></ul></div></div><div class="footer-top__item footer__image"><img src="https://img2018.cnblogs.com/blog/832799/201901/832799-20190116134451377-762296667.jpg" referrerpolicy="no-referrer" alt="logo" title="liangsw"></div><div class="footer-top__item"><h3 class="item__title">友情链接</h3><div class="item__content"><ul class="footer-top__list"><li class="list-item"><a href="https://maliming.github.io/" title="malimingBlog" target="_blank">malimingBlog</a></li></ul></div></div></div></section><section class="footer__bottom"><div class="page__container footer__container"><p class="footer__copyright"></p><ul class="footer__social-network clearfix"><li class="social-network__item"><a href="https://github.com/liangshiw" target="_blank" title="github"><i class="iconfont icon-github"></i></a></li><li class="social-network__item"><a href="https://www.zhihu.com/people/bian-cheng-meng/activities" target="_blank" title="zhihu"><i class="iconfont icon-zhihu"></i></a></li><li class="social-network__item"><a href="https://www.douban.com/people/169679237/" target="_blank" title="douban"><i class="iconfont icon-douban"></i></a></li><li class="social-network__item"><a href="https://www.linkedin.com/in/%E5%A3%AB%E4%BC%9F-%E6%A2%81-338999145/" target="_blank" title="linkedin"><i class="iconfont icon-in"></i></a></li><li class="social-network__item"><a href="liangshiw@outlook.com" target="_blank" title="email"><i class="iconfont icon-email"></i></a></li></ul></div></section></footer><div id="back-top" class="back-top back-top--hidden js-hidden"><i class="iconfont icon-top"></i></div></div><script src="/js/common.js"></script><script src="/js/page/post.js"></script><script>var disqus_shortname="http-liangsw-me",disqus_config=function(){this.page.url="https://liangsw.me/2016/11/07/MVC5-10 ModleBinder那点事/",this.page.identifier="/2016/11/07/MVC5-10 ModleBinder那点事/",this.page.title="MVC5-10 ModleBinder那点事"};!function(){var e=document,t=e.createElement("script");t.src="https://"+disqus_shortname+".disqus.com/embed.js",t.setAttribute("data-timestamp",+new Date),(e.head||e.body).appendChild(t)}()</script><noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></body></html>
